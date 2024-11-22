@@ -1,0 +1,4 @@
+django-allauth
+beautifulsoup4
+requests
+Pillow
