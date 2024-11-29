@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.templatetags.static import static
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -12,3 +13,19 @@ class Profile(models.Model):
     
     def __self__(self):
         return str(self.user)
+    
+    @property
+    def avatar(self):
+        try:
+            avatar = self.image.url
+        except:
+            avatar = static('images/avatar_default.svg')
+        return avatar
+    
+    @property
+    def name(self):
+        try:
+            name = self.realname
+        except:
+            name = self.user.username
+        return name

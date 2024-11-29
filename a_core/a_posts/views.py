@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import *
 from bs4 import BeautifulSoup
@@ -34,7 +35,7 @@ def home_view(request, tag=None):
     
 
 
-
+@login_required
 def post_create_view(request):
     form = PostCreateForm()
     
@@ -58,6 +59,8 @@ def post_create_view(request):
             artist = find_artist[0].text.strip()
             post.artist = artist
             
+            post.author = request.user
+            
             post.save()   # when webcrwal is done save the post to the database
             form.save_m2m() # save the tags to the database as well because its in the defferent table
             messages.success(request, 'Post Created Successfully')
@@ -66,8 +69,9 @@ def post_create_view(request):
         #     print('Form is not valid')
     return render(request, 'a_posts/post_create.html', {'form': form})
 
+@login_required
 def post_delete_view(request, pk):
-    post = get_object_or_404(Post, id=pk)
+    post = get_object_or_404(Post, id=pk, author=request.user)
     
     if request.method == 'POST':
         post.delete()
@@ -75,8 +79,9 @@ def post_delete_view(request, pk):
         return redirect('home')
     return render(request, 'a_posts/post_delete.html', {'post': post})
 
+@login_required
 def post_edit_view(request, pk):
-    post = get_object_or_404(Post, id=pk)
+    post = get_object_or_404(Post, id=pk, author=request.user)
     form = PostEditForm(instance=post)
     context = {
         'post': post,
